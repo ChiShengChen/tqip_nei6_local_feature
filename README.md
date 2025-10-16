@@ -112,9 +112,5 @@ best_result = predictor.train_models_2018(X, y)
 3. **Feature Selection**: If certain features are completely missing, the model will automatically exclude these features
 4. **Data Balance**: It is recommended to ensure a reasonable distribution of NEI6_positive to avoid extreme imbalance
 
-## Contact Information
-
-For any questions, please contact the development team.
-
 ---
 *Last updated: January 2025*
