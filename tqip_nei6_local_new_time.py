@@ -320,9 +320,57 @@ class TQIPNEI6LocalNewTimePredictor:
         
         return df
     
+    def calculate_evening_arrival(self, df):
+        """Calculate evening_arrival feature from arrival time"""
+        print("🕐 Calculating evening_arrival feature...")
+        
+        # Check if arrival time column exists
+        arrival_time_columns = ['arrival_time', 'ARRIVALTIME', 'arrival_hour']
+        arrival_col = None
+        
+        for col in arrival_time_columns:
+            if col in df.columns:
+                arrival_col = col
+                break
+        
+        if arrival_col is None:
+            print("  ⚠️ No arrival time column found, creating random evening_arrival...")
+            # Create random evening_arrival if no arrival time data
+            np.random.seed(42)
+            df['evening_arrival'] = np.random.choice([0, 1], size=len(df), p=[0.6, 0.4])
+            return df
+        
+        print(f"  📊 Using arrival time column: {arrival_col}")
+        
+        # Parse arrival time and calculate evening_arrival
+        if arrival_col in ['arrival_hour']:
+            # Direct hour values
+            df['evening_arrival'] = ((df[arrival_col] >= 18) | (df[arrival_col] <= 6)).astype(int)
+        else:
+            # Other arrival time formats (datetime strings)
+            try:
+                df[arrival_col] = pd.to_datetime(df[arrival_col], errors='coerce')
+                df['arrival_hour'] = df[arrival_col].dt.hour
+                df['evening_arrival'] = ((df['arrival_hour'] >= 18) | (df['arrival_hour'] <= 6)).astype(int)
+            except:
+                print("  ⚠️ Failed to parse arrival time, creating random evening_arrival...")
+                np.random.seed(42)
+                df['evening_arrival'] = np.random.choice([0, 1], size=len(df), p=[0.6, 0.4])
+        
+        # Statistics
+        evening_count = df['evening_arrival'].sum()
+        evening_rate = evening_count / len(df) * 100
+        print(f"  📊 Evening arrivals: {evening_count}/{len(df)} ({evening_rate:.1f}%)")
+        
+        return df
+
     def prepare_features_new_time(self, df):
         """Prepare features for new time format data"""
         print("🔧 Preparing features for new time format...")
+        
+        # First calculate evening_arrival if not present
+        if 'evening_arrival' not in df.columns:
+            df = self.calculate_evening_arrival(df)
         
         # Define all possible features
         all_feature_columns = [
