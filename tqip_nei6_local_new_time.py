@@ -860,7 +860,7 @@ def main():
     predictor = TQIPNEI6LocalNewTimePredictor()
     
     # Run analysis with sample data
-    sample_csv = "sample_tqip_local_features.csv"
+    sample_csv = "sample_tqip_local_features_with_arrival_time.csv"
     if os.path.exists(sample_csv):
         predictor.run_analysis_new_time(sample_csv)
         
